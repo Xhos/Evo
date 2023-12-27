@@ -1,31 +1,23 @@
-const {
-    ApplicationCommandOptionType,
-    PermissionFlagsBits,
-  } = require('discord.js');
-  
-  module.exports = {
-    deleted: true,
-    name: 'join',
-    description: 'Bans a member!!!',
-    // devOnly: Boolean,
-    // testOnly: Boolean,
-    options: [
-      {
-        name: 'target-user',
-        description: 'The user to ban.',
-        required: true,
-        type: ApplicationCommandOptionType.Mentionable,
-      },
-      {
-        name: 'reason',
-        description: 'The reason for banning.',
-        type: ApplicationCommandOptionType.String,
-      },
-    ],
-    permissionsRequired: [PermissionFlagsBits.Administrator],
-    botPermissions: [PermissionFlagsBits.Administrator],
-  
-    callback: (client, interaction) => {
-      interaction.reply('ban..');
-    },
-  };
+const { createAudioPlayer, createAudioResource, joinVoiceChannel } = require('@discordjs/voice');
+const fs = require('fs');
+
+module.exports = {
+  name: 'join',
+  description: 'Join the vc',
+  testOnly: true,
+
+  callback: async (client, interaction) => {
+    const channelId = interaction.member.voice.channelId;
+    if (!channelId) return interaction.reply('You should join a voice channel first!');
+
+    const channel = interaction.guild.channels.resolve(channelId);
+
+    const connection = joinVoiceChannel({
+      channelId: channel.id,
+      guildId: channel.guild.id,
+      adapterCreator: channel.guild.voiceAdapterCreator,
+    });
+
+    await interaction.reply('Joined!');
+  },
+};

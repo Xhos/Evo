@@ -1,1 +1,14 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+*.log
+
+# Environment variables
 .env
+
+# IDE/Editor folders
+.vscode/
+
+# Temp filse
+temp/
