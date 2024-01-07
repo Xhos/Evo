@@ -17,4 +17,7 @@ module.exports = (player) => {
             }
           });
     }
+    player.on('error', (error) => {
+      console.error(`Error occurred in player: ${error.message}`);
+    });
 };

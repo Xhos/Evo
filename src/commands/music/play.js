@@ -32,7 +32,7 @@ module.exports = {
     await interaction.reply({ embeds: [embed] });
   
     // Then perform the actual operation
-    await addToQueue(link);
+    await addToQueue(link, interaction.user.username);
   
     const channel = interaction.guild.channels.resolve(channelId);
     let connection = getVoiceConnection(channel.guild.id);
@@ -50,7 +50,8 @@ module.exports = {
     const newEmbed = new EmbedBuilder()
     .setTitle(`Playing`)
     .setColor('#9F85FF')
-    .setDescription("- ```" + queue[0] + "```")
+    .setDescription(` - [${queue[0].name} - ${queue[0].artists}](${queue[0].link})`)
+    
     // Edit the previous reply
     await interaction.editReply({ embeds: [newEmbed] });
   },

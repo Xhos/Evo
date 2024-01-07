@@ -12,7 +12,7 @@ async function playTrack(guildId) {
   }
 
   // Get the current track from the queue
-  const currentTrackName = queue[0];
+  const currentTrack = queue[0];
 
   // Download the track without waiting for it to finish
   Promise.resolve(queueDownload(queue)).catch((error) => {
@@ -20,7 +20,7 @@ async function playTrack(guildId) {
   });
 
   // Check if the file exists every second
-  const filePath = path.join(__dirname, '..', 'temp', `${currentTrackName}.mp3`);
+  const filePath = path.join(__dirname, '..', 'temp', `${currentTrack.name}.mp3`);
   const fileCheckInterval = setInterval(() => {
     if (fs.existsSync(filePath)) {
       clearInterval(fileCheckInterval);
@@ -42,7 +42,7 @@ async function playTrack(guildId) {
       player.play(resource);
       connection.subscribe(player);
 
-      console.log(`Playing track: ${currentTrackName}`);
+      console.log(`Playing: ${currentTrack.name} - ${currentTrack.artists}`);
     } else {
       console.log(`File ${filePath} does not exist.`);
     }

@@ -11,7 +11,8 @@ module.exports = {
       return interaction.reply('The queue is currently empty!');
     }
 
-    let formattedQueue = queue.slice(0, 15).map(track => `- \`${track}\``).join('\n');
+    let formattedQueue = queue.slice(0, 15).map(track => ` - [${queue[0].name} - ${queue[0].artists}](${queue[0].link}) (${queue[0].requester})`).join('\n');
+
 
     if (queue.length > 15) {
       const additionalTracks = queue.length - 15;

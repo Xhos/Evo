@@ -5,7 +5,8 @@
     "dotenv": "^16.3.1",
     "sodium-native": "^4.0.4",
     "spotify-web-api-js": "^1.5.2",
-    "spotify-web-api-node": "^5.0.2"
+    "spotify-web-api-node": "^5.0.2",
+    "ytdl-core": "^4.11.5"
   },
   "name": "evobeta",
   "version": "1.0.0",

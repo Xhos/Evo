@@ -2,13 +2,13 @@ const linkToName = require('./linkToName');
 
 let queue = [];
 
-async function addToQueue(link) {
-  const names = await linkToName(link);
-  console.log(names);
-  if (Array.isArray(names)) {
-    queue.push(...names);
+async function addToQueue(link, requester) {
+  const trackInfo = await linkToName(link);
+  console.log(trackInfo);
+  if (Array.isArray(trackInfo)) {
+    queue.push(...trackInfo.map(info => ({...info, requester: requester})));
   } else {
-    queue.push(names);
+    queue.push({name: trackInfo.name, artists: trackInfo.artists, link: trackInfo.link, requester: requester});
   }
 }
 

@@ -14,21 +14,27 @@ async function queueDownload(queue) {
   }
   // Make a copy of the queue array
   const queueCopy = [...queue];
-  for (const trackName of queueCopy) {
+  for (const track of queueCopy) {
     // Skip if the track name is empty or null
-    if (!trackName) {
+    if (!track.name) {
       continue;
     }
-
+    console.log(queue);
     // Construct the file path
-    const filePath = path.join(__dirname, '..', 'temp', `${trackName}.mp3`);
+    const filePath = path.join(__dirname, '..', 'temp', `${track.name}.mp3`);
 
     // Check if the file exists
     if (!fs.existsSync(filePath)) {
       // If the file does not exist, download it
 
-      // Construct the command
-      const command = `ydl.exe --default-search "ytsearch" -f bestaudio "${trackName}" -o "${filePath}"`;
+      // if link is a youtube link, use ytdl do download by link
+      let command;
+      if (track.link.includes('youtube.com') || track.link.includes('youtu.be')) {
+        command = `ydl.exe -f bestaudio "${track.link}" -o "${filePath}"`;
+      } else {
+        command = `ydl.exe --default-search "ytsearch" -f bestaudio "${track.name} - ${track.artists}" -o "${filePath}"`;
+      }
+      
 
       try {
         // Execute the command and wait for it to finish

@@ -15,7 +15,7 @@ module.exports = {
 
   callback: async (client, interaction) => {
     const link = interaction.options.getString('link');
-    await addToQueue(link);
+    await addToQueue(link, interaction.user.username);
     await interaction.reply('Track added to the queue!');
   },
 };
