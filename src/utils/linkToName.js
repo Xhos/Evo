@@ -9,9 +9,12 @@ const spotifyApi = new SpotifyWebApi({
 
 async function linkToName(link) {
   console.log(`Getting name from link: ${link}`);
+
   try {
+    switch (true) {
     // youtube
-    if (link.includes('youtube.com') || link.includes('youtu.be')) {
+    case /youtube\.com|youtu\.be/.test(link):
+    // if (link.includes('youtube.com') || link.includes('youtu.be')) {
       const videoId = link.split('v=').pop();
       const video = await ytdl.getBasicInfo(videoId);
 
@@ -22,7 +25,8 @@ async function linkToName(link) {
       };
 
     // spotify
-    } else if (link.includes('spotify.com')) {
+    case /spotify\.com/.test(link):
+    // } else if (link.includes('spotify.com')) {
       const data = await spotifyApi.clientCredentialsGrant();
       spotifyApi.setAccessToken(data.body['access_token']);
 
@@ -37,8 +41,8 @@ async function linkToName(link) {
           const artists = item.track.artists.map(artist => artist.name).join(', ');
 
           return {
-            name: item.track.name.replace(/[\\/:*?"<>|]/g, ''), // remove invalid characters from track name
-            artists: artists.replace(/[\\/:*?"<>|]/g, ''),
+            name: item.track.name, // remove invalid characters from track name
+            artists: artists,
             link: link
           };
         });
@@ -49,12 +53,13 @@ async function linkToName(link) {
         const artists = response.body.artists.map(artist => artist.name).join(', ');
 
         return {
-          name: response.body.name.replace(/[\\/:*?"<>|]/g, ''), // remove invalid characters from track name
-          artists: artists.replace(/[\\/:*?"<>|]/g, ''),
+          name: response.body.name, // remove invalid characters from track name
+          artists: artists,
           link: link
         };
       }
-    } else {
+    // } else {
+    default:
       return {
         name: link // remove invalid characters from track name
       };

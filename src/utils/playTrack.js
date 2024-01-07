@@ -14,39 +14,39 @@ async function playTrack(guildId) {
   // Get the current track from the queue
   const currentTrack = queue[0];
 
-  // Download the track without waiting for it to finish
-  Promise.resolve(queueDownload(queue)).catch((error) => {
+  // Download the track and wait for it to finish
+  try {
+    await queueDownload(queue);
+  } catch (error) {
     console.error(`Error downloading track: ${error.message}`);
-  });
+    return;
+  }
 
-  // Check if the file exists every second
+  // Check if the file exists
   const filePath = path.join(__dirname, '..', 'temp', `${currentTrack.name}.mp3`);
-  const fileCheckInterval = setInterval(() => {
-    if (fs.existsSync(filePath)) {
-      clearInterval(fileCheckInterval);
+  if (!fs.existsSync(filePath)) {
+    console.log(`File ${filePath} does not exist.`);
+    return;
+  }
 
-      // Get the voice connection
-      const connection = getVoiceConnection(guildId);
-      if (!connection) {
-        console.log('Not connected to a voice channel.');
-        return;
-      }
+  // Get the voice connection
+  const connection = getVoiceConnection(guildId);
+  if (!connection) {
+    console.log('Not connected to a voice channel.');
+    return;
+  }
 
-      // Create an audio player and resource
-      const player = createAudioPlayer();
-      player.guildId = guildId;
-      audioPlayerEventHandler(player);
-      const resource = createAudioResource(fs.createReadStream(filePath));
+  // Create an audio player and resource
+  const player = createAudioPlayer();
+  player.guildId = guildId;
+  audioPlayerEventHandler(player);
+  const resource = createAudioResource(fs.createReadStream(filePath));
 
-      // Play the track
-      player.play(resource);
-      connection.subscribe(player);
+  // Play the track
+  player.play(resource);
+  connection.subscribe(player);
 
-      console.log(`Playing: ${currentTrack.name} - ${currentTrack.artists}`);
-    } else {
-      console.log(`File ${filePath} does not exist.`);
-    }
-  }, 1000);
+  console.log(`Playing: ${currentTrack.name} - ${currentTrack.artists}`);
 }
 
 module.exports = playTrack;

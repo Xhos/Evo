@@ -21,7 +21,7 @@ async function queueDownload(queue) {
     }
     console.log(queue);
     // Construct the file path
-    const filePath = path.join(__dirname, '..', 'temp', `${track.name}.mp3`);
+    const filePath = path.join(__dirname, '..', 'temp', `${track.name.replace(/[\\/:*?"<>|]/g, '')}.mp3`);
 
     // Check if the file exists
     if (!fs.existsSync(filePath)) {
