@@ -30,7 +30,15 @@ async function linkToName(link) {
       const data = await spotifyApi.clientCredentialsGrant();
       spotifyApi.setAccessToken(data.body['access_token']);
 
-      const type = link.includes('playlist') ? 'playlist' : 'track';
+      let type;
+      if (link.includes('playlist')) {
+        type = 'playlist';
+      } else if (link.includes('album')) {
+        type = 'album';
+      } else {
+        type = 'track';
+      }
+      
       let id = link.split('/').pop();
       id = id.split('?')[0]; // remove any parameters
 
@@ -46,7 +54,18 @@ async function linkToName(link) {
             link: link
           };
         });
+      } else if (type === 'album') {
+        // spotify album
+        const response = await spotifyApi.getAlbum(id);
+        return response.body.tracks.items.map(item => {
+          const artists = item.artists.map(artist => artist.name).join(', ');
 
+          return {
+            name: item.name, // remove invalid characters from track name
+            artists: artists,
+            link: link
+          };
+        });
       } else {
         // spotify track
         const response = await spotifyApi.getTrack(id);

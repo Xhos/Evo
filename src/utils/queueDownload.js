@@ -5,6 +5,8 @@ const util = require('util');
 
 // Convert exec to a function that returns a promise
 const execPromise = util.promisify(exec);
+const EventEmitter = require('events');
+const downloadEmitter = new EventEmitter();
 
 async function queueDownload(queue) {
   console.log(typeof queue);
@@ -34,7 +36,6 @@ async function queueDownload(queue) {
       } else {
         command = `ydl.exe --default-search "ytsearch" -f bestaudio "${track.name} - ${track.artists}" -o "${filePath}"`;
       }
-      
 
       try {
         // Execute the command and wait for it to finish
@@ -46,6 +47,7 @@ async function queueDownload(queue) {
         }
 
         console.log(`Track downloaded: ${stdout}`);
+        downloadEmitter.emit('trackDownloaded', track);
       } catch (error) {
         console.error(`Error downloading track: ${error.message}`);
       }
@@ -53,4 +55,7 @@ async function queueDownload(queue) {
   }
 }
 
-module.exports = queueDownload;
+module.exports = {
+  queueDownload,
+  downloadEmitter
+};
