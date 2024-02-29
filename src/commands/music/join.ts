@@ -1,4 +1,8 @@
-const { createAudioPlayer, createAudioResource, joinVoiceChannel } = require('@discordjs/voice');
+const {
+  createAudioPlayer,
+  createAudioResource,
+  joinVoiceChannel,
+} = require('@discordjs/voice');
 const fs = require('fs');
 
 module.exports = {
@@ -6,9 +10,10 @@ module.exports = {
   description: 'Join the vc',
   testOnly: true,
 
-  callback: async (client, interaction) => {
+  callback: async (client: any, interaction: any) => {
     const channelId = interaction.member.voice.channelId;
-    if (!channelId) return interaction.reply('You should join a voice channel first!');
+    if (!channelId)
+      return interaction.reply('You should join a voice channel first!');
 
     const channel = interaction.guild.channels.resolve(channelId);
 
@@ -21,3 +26,5 @@ module.exports = {
     await interaction.reply('Joined!');
   },
 };
+
+export {};

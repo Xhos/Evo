@@ -3,7 +3,7 @@ const areCommandsDifferent = require('../../utils/areCommandsDifferent');
 const getApplicationCommands = require('../../utils/getApplicationCommands');
 const getLocalCommands = require('../../utils/getLocalCommands');
 
-module.exports = async (client) => {
+module.exports = async (client: any) => {
   try {
     const localCommands = getLocalCommands();
     const applicationCommands = await getApplicationCommands(
@@ -15,7 +15,7 @@ module.exports = async (client) => {
       const { name, description, options } = localCommand;
 
       const existingCommand = await applicationCommands.cache.find(
-        (cmd) => cmd.name === name
+        (cmd: any) => cmd.name === name
       );
 
       if (existingCommand) {
@@ -54,3 +54,5 @@ module.exports = async (client) => {
     console.log(`TThere was an error: ${error}`);
   }
 };
+
+export {};
