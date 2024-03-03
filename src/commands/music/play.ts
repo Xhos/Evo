@@ -2,6 +2,7 @@ import { joinVoiceChannel, getVoiceConnection } from '@discordjs/voice';
 import { queues, Queue } from '../../utils/queue';
 import { players, Player } from '../../utils/player';
 import { EmbedBuilder } from 'discord.js';
+import { logLevel, log } from '../../utils/log';
 
 module.exports = {
   name: 'play',
@@ -52,7 +53,7 @@ module.exports = {
 
     const currentTrack = queue.getCurrentTrack();
     if (typeof currentTrack === 'string') {
-      console.log(currentTrack);
+      log(currentTrack, logLevel.Debug);
       return;
     }
 

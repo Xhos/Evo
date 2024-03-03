@@ -1,3 +1,5 @@
+import { logLevel, log } from '../../utils/log';
+
 const { testServer } = require('../../../config.json');
 const areCommandsDifferent = require('../../utils/areCommandsDifferent');
 const getApplicationCommands = require('../../utils/getApplicationCommands');
@@ -21,7 +23,7 @@ module.exports = async (client: any) => {
       if (existingCommand) {
         if (localCommand.deleted) {
           await applicationCommands.delete(existingCommand.id);
-          console.log(`🗑 Deleted command "${name}".`);
+          log(`🗑 Deleted command "${name}".`);
           continue;
         }
 
@@ -31,11 +33,11 @@ module.exports = async (client: any) => {
             options,
           });
 
-          console.log(`🔁 Edited command "${name}".`);
+          log(`🔁 Edited command "${name}".`);
         }
       } else {
         if (localCommand.deleted) {
-          console.log(
+          log(
             `⏩ Skipping registering command "${name}" as it's set to delete.`
           );
           continue;
@@ -47,11 +49,11 @@ module.exports = async (client: any) => {
           options,
         });
 
-        console.log(`👍 Registered command "${name}."`);
+        log(`👍 Registered command "${name}."`);
       }
     }
   } catch (error) {
-    console.log(`TThere was an error: ${error}`);
+    log(`There was an error: ${error}`, logLevel.Error);
   }
 };
 

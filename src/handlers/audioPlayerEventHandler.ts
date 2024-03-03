@@ -1,5 +1,6 @@
 import path from 'path';
 import getAllFiles from '../utils/getAllFiles';
+import { logLevel, log } from '../utils/log';
 
 const audioPlayerEventHandler = (player) => {
   const eventFolders = getAllFiles(path.join(__dirname, '..', 'events'), true);
@@ -16,13 +17,13 @@ const audioPlayerEventHandler = (player) => {
         if (typeof eventFunction === 'function') {
           await eventFunction(player, oldState, newState);
         } else {
-          console.error(`Failed to load event file: ${eventFile}`);
+          log(`Failed to load event file: ${eventFile}`, logLevel.Error);
         }
       }
     });
   }
   player.on('error', (error) => {
-    console.error(`Error occurred in player: ${error.message}`);
+    log(`Error occurred in player: ${error.message}`, logLevel.Error);
   });
 };
 

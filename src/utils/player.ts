@@ -51,8 +51,9 @@ export class Player {
 
   join(channelID: string) {
     if (!this.guild) {
-      console.error(
-        `Guild with id ${this.guildId} not found in client's cache.`
+      log(
+        `Guild with id ${this.guildId} not found in client's cache.`,
+        logLevel.Error
       );
       return;
     }
@@ -88,7 +89,7 @@ export class Player {
     //   try {
     //     this.queueDownload();
     //   } catch (error: any) {
-    //     console.error(`Error downloading track: ${error.message}`);
+    //     log(`Error downloading track: ${error.message}`);
     //     return;
     //   }
 

@@ -1,5 +1,6 @@
 const { devs, testServer } = require('../../../config.json');
 const getLocalCommands = require('../../utils/getLocalCommands');
+import { logLevel, log } from '../../utils/log';
 
 module.exports = async (client: any, interaction: any) => {
   if (!interaction.isChatInputCommand()) return;
@@ -61,6 +62,6 @@ module.exports = async (client: any, interaction: any) => {
 
     await commandObject.callback(client, interaction);
   } catch (error) {
-    console.log(`There was an error running this command: ${error}`);
+    log(`There was an error running this command: ${error}`, logLevel.Error);
   }
 };

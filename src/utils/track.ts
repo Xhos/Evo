@@ -1,5 +1,6 @@
 import { exec } from 'child_process';
 import path from 'path';
+import { logLevel, log } from '../utils/log';
 require('dotenv').config();
 const SpotifyWebApi = require('spotify-web-api-node');
 const ytdl = require('ytdl-core');
@@ -53,24 +54,24 @@ export class Track {
     try {
       exec(command, (error: any, stdout: string, stderr: string) => {
         if (error) {
-          console.error(`Error downloading track: ${error.message}`);
+          log(`Error downloading track: ${error.message}`, logLevel.Error);
           return;
         }
 
         if (stderr) {
-          console.error(`Error downloading track: ${stderr}`);
+          log(`Error downloading track: ${stderr}`, logLevel.Error);
           return;
         }
 
-        console.log(`Track downloaded: ${stdout}`);
+        log(`Track downloaded: ${stdout}`);
       });
     } catch (error: any) {
-      console.error(`Error downloading track: ${error.message}`);
+      log(`Error downloading track: ${error.message}`, logLevel.Error);
     }
   }
 
   static async linkToName(link: string, requester: string) {
-    console.log(`Getting name from link: ${link}`);
+    log(`Getting name from link: ${link}`, logLevel.Debug);
 
     try {
       switch (true) {
@@ -170,7 +171,7 @@ export class Track {
           );
       }
     } catch (error) {
-      console.error(`Error getting the track from link: ${error}`);
+      log(`Error getting the track from link: ${error}`, logLevel.Error);
     }
   }
 }
