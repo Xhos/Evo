@@ -4,10 +4,7 @@ import getAllFiles from './getAllFiles';
 module.exports = (exceptions: string[] = []) => {
   let localCommands: { name: string }[] = [];
 
-  const commandCategories = getAllFiles(
-    path.join(__dirname, '..', 'commands'),
-    true
-  );
+  const commandCategories = getAllFiles(path.join(__dirname, '..', 'commands'), true);
 
   for (const commandCategory of commandCategories) {
     const commandFiles = getAllFiles(commandCategory);

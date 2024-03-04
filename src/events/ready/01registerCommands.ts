@@ -1,13 +1,13 @@
 import { logLevel, log } from '../../utils/log';
 
-const areCommandsDifferent = require('../../utils/areCommandsDifferent');
-const getApplicationCommands = require('../../utils/getApplicationCommands');
+import areCommandsDifferent from '../../utils/areCommandsDifferent';
+import getApplicationCommands from '../../utils/getApplicationCommands';
 const getLocalCommands = require('../../utils/getLocalCommands');
 
 module.exports = async (client: any) => {
   try {
     const localCommands = getLocalCommands();
-    const applicationCommands = await getApplicationCommands(client, process.env.TEST_GUILD_ID);
+    const applicationCommands = await getApplicationCommands(client, process.env.TEST_GUILD_ID || '');
 
     for (const localCommand of localCommands) {
       const { name, description, options } = localCommand;

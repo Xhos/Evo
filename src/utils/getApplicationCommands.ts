@@ -1,4 +1,17 @@
-module.exports = async (client: any, guildId: string) => {
+interface Guild {
+  commands: any;
+}
+
+interface Client {
+  guilds: {
+    fetch: (guildId: string) => Promise<Guild>;
+  };
+  application: {
+    commands: any;
+  };
+}
+
+const getApplicationCommands = async (client: Client, guildId: string) => {
   let applicationCommands;
 
   if (guildId) {
@@ -11,3 +24,5 @@ module.exports = async (client: any, guildId: string) => {
   await applicationCommands.fetch();
   return applicationCommands;
 };
+
+export default getApplicationCommands;

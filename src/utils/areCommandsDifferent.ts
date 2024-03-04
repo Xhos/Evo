@@ -1,22 +1,36 @@
-module.exports = (existingCommand: any, localCommand: any) => {
-  const areChoicesDifferent = (existingChoices: any[], localChoices: any[]) => {
+interface Choice {
+  name: string;
+  value: any;
+}
+
+interface Option {
+  name: string;
+  description: string;
+  type: string;
+  required: boolean;
+  choices: Choice[];
+}
+
+interface Command {
+  description: string;
+  options: Option[];
+}
+
+const areCommandsDifferent = (existingCommand: Command, localCommand: Command): boolean => {
+  const areChoicesDifferent = (existingChoices: Choice[], localChoices: Choice[]): boolean => {
     for (const localChoice of localChoices) {
-      const existingChoice = existingChoices?.find((choice: any) => choice.name === localChoice.name);
+      const existingChoice = existingChoices?.find((choice: Choice) => choice.name === localChoice.name);
 
-      if (!existingChoice) {
-        return true;
-      }
-
-      if (localChoice.value !== existingChoice.value) {
+      if (!existingChoice || localChoice.value !== existingChoice.value) {
         return true;
       }
     }
     return false;
   };
 
-  const areOptionsDifferent = (existingOptions: any[], localOptions: any[]) => {
+  const areOptionsDifferent = (existingOptions: Option[], localOptions: Option[]): boolean => {
     for (const localOption of localOptions) {
-      const existingOption = existingOptions?.find((option: any) => option.name === localOption.name);
+      const existingOption = existingOptions?.find((option: Option) => option.name === localOption.name);
 
       if (!existingOption) {
         return true;
@@ -38,10 +52,12 @@ module.exports = (existingCommand: any, localCommand: any) => {
   if (
     existingCommand.description !== localCommand.description ||
     existingCommand.options?.length !== (localCommand.options?.length || 0) ||
-    areOptionsDifferent(existingCommand.options, localCommand.options || [])
+    areOptionsDifferent(existingCommand.options || [], localCommand.options || [])
   ) {
     return true;
   }
 
   return false;
 };
+
+export default areCommandsDifferent;
