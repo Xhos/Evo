@@ -1,8 +1,6 @@
 import { WebhookClient } from 'discord.js';
 import fs from 'fs/promises';
 import path from 'path';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const webhookClient = new WebhookClient({
   url: process.env.DISCORD_WEBHOOK_URL ?? '',
@@ -40,9 +38,7 @@ export async function log(message: string, level: logLevel = logLevel.Info) {
     try {
       await webhookClient.send(`[${level}] ${message}`);
     } catch (error: any) {
-      console.error(
-        `Failed to send message to Discord webhook: ${error.message}`
-      );
+      console.error(`Failed to send message to Discord webhook: ${error.message}`);
     }
   }
 

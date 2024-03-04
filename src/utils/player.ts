@@ -5,22 +5,12 @@ import {
   NoSubscriberBehavior,
   joinVoiceChannel,
 } from '@discordjs/voice';
-import { queues, Queue } from './queue';
+import { Queue } from './queue';
 import { logLevel, log } from './log';
-
-import { Client, GatewayIntentBits } from 'discord.js';
-
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,
-  ],
-});
+import client from './client';
 
 export class Player {
-  static players: { [guildId: string]: Player } = {};
+  static players: Map<string, Player> = new Map();
 
   guild: any;
   guildId: string;
@@ -33,30 +23,54 @@ export class Player {
 
   constructor(guildId: string) {
     this.guildId = guildId;
-    this.guild = client.guilds.cache.get(guildId);
-    this.queue = queues[this.guildId];
-    Player.players[guildId] = this;
+    this.queue = Queue.getQueue(guildId); // Get the Queue instance for the guild
+    Player.players.set(guildId, this);
+
+    client.guilds
+      .fetch(guildId)
+      .then((guild) => {
+        this.guild = guild;
+      })
+      .catch((error) => {
+        log(`Error fetching guild: ${error}`, logLevel.Error);
+      });
   }
 
-  play() {
+  static getPlayer(guildId: string): Player {
+    let player = this.players.get(guildId);
+    if (!player) {
+      player = new Player(guildId);
+      this.players.set(guildId, player);
+    }
+    return player;
+  }
+
+  async play() {
+    log('Trying to get the current track from the queue..', logLevel.Debug);
     const currentTrack = this.queue.getCurrentTrack();
     if (typeof currentTrack === 'string') {
-      log(currentTrack, logLevel.Info);
       return;
+    }
+
+    if (currentTrack.downloaded == false) {
+      log('Track is not yet downloded, downloading it now..', logLevel.Debug);
+      await currentTrack.download();
     }
 
     const resource = createAudioResource(currentTrack.path);
     this.player.play(resource);
+
+    log(`Playing: ${currentTrack.name} - ${currentTrack.artists}`, logLevel.Debug);
+    // log(`Audio player status: ${this.player.state.status}`, logLevel.Debug);
+
+    // Listen for error events on the AudioPlayer
+    // this.player.on('error', (error) => {
+    //   log(`AudioPlayer error: ${error.message}`, logLevel.Error);
+    // });
   }
 
   join(channelID: string) {
-    if (!this.guild) {
-      log(
-        `Guild with id ${this.guildId} not found in client's cache.`,
-        logLevel.Error
-      );
-      return;
-    }
+    log(`Joining voice channel with id ${channelID}. Guild ID: ${this.guildId}`, logLevel.Debug);
 
     const channel = this.guild.channels.resolve(channelID);
 
@@ -68,68 +82,24 @@ export class Player {
         guildId: channel.guild.id,
         adapterCreator: channel.guild.voiceAdapterCreator,
       });
+
+      // Subscribe the VoiceConnection to the AudioPlayer
+      connection.subscribe(this.player);
       log('Successfully connected to the voice channel.', logLevel.Info);
     } else {
-      log(
-        'Join called but already connected to a voice channel.',
-        logLevel.Warn
-      );
+      log('Join called but already connected to a voice channel.', logLevel.Warn);
     }
 
-    // async playTrack() {
-    //   if (this.queue.length === 0) {
-    //     console.log('The queue is empty.');
-    //     return;
-    //   }
+    // Check if the voice connection is in the Ready state
+    log(`VoiceConnection status: ${connection.state.status}`, logLevel.Debug);
 
-    //   // Get the current track from the queue
-    //   const currentTrack = this.queue[0];
-
-    //   // Download the track and wait for it to finish
-    //   try {
-    //     this.queueDownload();
-    //   } catch (error: any) {
-    //     log(`Error downloading track: ${error.message}`);
-    //     return;
-    //   }
-
-    //   const playDownloadedTrack = (track: any) => {
-    //     // Check if the file exists
-    //     const filePath = path.join(__dirname, '..', 'temp', `${track.name}.mp3`);
-    //     if (!fs.existsSync(filePath)) {
-    //       console.log(`File ${filePath} does not exist.`);
-    //       return;
-    //     }
-
-    //     // Get the voice connection
-    //     const connection = getVoiceConnection(this.guildId);
-    //     if (!connection) {
-    //       console.log('Not connected to a voice channel.');
-    //       return;
-    //     }
-
-    //     // Create an audio player and resource
-    //     const player = createAudioPlayer();
-    //     player.guildId = this.guildId;
-    //     audioPlayerEventHandler(player);
-    //     const resource = createAudioResource(fs.createReadStream(filePath));
-
-    //     // Play the track
-    //     player.play(resource);
-    //     connection.subscribe(player);
-
-    //     console.log(`Playing: ${track.name} - ${track.artists}`);
-
-    //     // Remove the event listener after the track is played
-    //     // downloadEmitter.off('trackDownloaded', playDownloadedTrack);
-    //   };
-
-    //   // downloadEmitter.on('trackDownloaded', playDownloadedTrack);
-    // }
-
-    // queueDownload() {
-    //   // Implement the logic for downloading the tracks in the queue
-    // }
+    // Listen for error and state change events on the voice connection
+    connection.on('error', (error) => {
+      log(`VoiceConnection error: ${error.message}`, logLevel.Error);
+    });
+    connection.on('stateChange', (oldState, newState) => {
+      log(`VoiceConnection state change: ${oldState.status} -> ${newState.status}`, logLevel.Debug);
+    });
   }
 }
 

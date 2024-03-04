@@ -1,18 +1,8 @@
-import { Client, IntentsBitField } from 'discord.js';
-import dotenv from 'dotenv';
+import client from './utils/client';
 import eventHandler from './handlers/eventHandler';
+import dotenv from 'dotenv';
 
 dotenv.config();
-
-const client = new Client({
-  intents: [
-    IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.GuildMessages,
-    IntentsBitField.Flags.GuildMembers,
-    IntentsBitField.Flags.MessageContent,
-    IntentsBitField.Flags.GuildVoiceStates,
-  ],
-});
 
 eventHandler(client);
 

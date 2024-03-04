@@ -1,6 +1,5 @@
 import { logLevel, log } from '../../utils/log';
 
-const { testServer } = require('../../../config.json');
 const areCommandsDifferent = require('../../utils/areCommandsDifferent');
 const getApplicationCommands = require('../../utils/getApplicationCommands');
 const getLocalCommands = require('../../utils/getLocalCommands');
@@ -8,17 +7,12 @@ const getLocalCommands = require('../../utils/getLocalCommands');
 module.exports = async (client: any) => {
   try {
     const localCommands = getLocalCommands();
-    const applicationCommands = await getApplicationCommands(
-      client,
-      testServer
-    );
+    const applicationCommands = await getApplicationCommands(client, process.env.TEST_GUILD_ID);
 
     for (const localCommand of localCommands) {
       const { name, description, options } = localCommand;
 
-      const existingCommand = await applicationCommands.cache.find(
-        (cmd: any) => cmd.name === name
-      );
+      const existingCommand = await applicationCommands.cache.find((cmd: any) => cmd.name === name);
 
       if (existingCommand) {
         if (localCommand.deleted) {
@@ -37,9 +31,7 @@ module.exports = async (client: any) => {
         }
       } else {
         if (localCommand.deleted) {
-          log(
-            `⏩ Skipping registering command "${name}" as it's set to delete.`
-          );
+          log(`⏩ Skipping registering command "${name}" as it's set to delete.`);
           continue;
         }
 

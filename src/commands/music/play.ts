@@ -1,6 +1,5 @@
-import { joinVoiceChannel, getVoiceConnection } from '@discordjs/voice';
-import { queues, Queue } from '../../utils/queue';
-import { players, Player } from '../../utils/player';
+import { Queue } from '../../utils/queue';
+import { Player } from '../../utils/player';
 import { EmbedBuilder } from 'discord.js';
 import { logLevel, log } from '../../utils/log';
 
@@ -19,19 +18,14 @@ module.exports = {
 
   callback: async (client: any, interaction: any) => {
     const guildId = interaction.guild.id;
-    let queue = queues[guildId];
 
-    if (!queue) {
-      queue = queues[guildId] = new Queue(guildId);
-    }
+    // Get the queue and player for the guild
+    let queue = Queue.getQueue(guildId);
+    let player = Player.getPlayer(guildId);
 
-    let player = players[guildId];
-
-    if (!player) {
-      player = players[guildId] = new Player(guildId);
-    }
     const link = interaction.options.getString('link');
 
+    // Throw an error if the user is not in a voice channel
     const channelId = interaction.member.voice.channelId;
     if (!channelId)
       return interaction.reply({
@@ -39,16 +33,16 @@ module.exports = {
         ephemeral: true,
       });
 
-    const embed = new EmbedBuilder()
-      .setTitle('Downloading...')
-      .setColor('#FFFF00');
-
+    const embed = new EmbedBuilder().setTitle('Downloading...').setColor('#FFFF00');
     await interaction.reply({ embeds: [embed] });
 
+    // Add the track to the queue
     await queue.add(link, interaction.user.username);
 
+    // Join the voice channel
     await player.join(channelId);
 
+    // Play the track
     await player.play();
 
     const currentTrack = queue.getCurrentTrack();
@@ -60,9 +54,7 @@ module.exports = {
     const newEmbed = new EmbedBuilder()
       .setTitle(`Playing`)
       .setColor('#9F85FF')
-      .setDescription(
-        ` - [${currentTrack.name} - ${currentTrack.artists}](${currentTrack.link})`
-      );
+      .setDescription(` - [${currentTrack.name} - ${currentTrack.artists}](${currentTrack.link})`);
 
     await interaction.editReply({ embeds: [newEmbed] });
   },
