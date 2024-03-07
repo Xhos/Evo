@@ -1,10 +1,10 @@
-import { WebhookClient } from 'discord.js';
+// import { WebhookClient } from 'discord.js';
 import fs from 'fs/promises';
 import path from 'path';
 
-const webhookClient = new WebhookClient({
-  url: process.env.DISCORD_WEBHOOK_URL ?? '',
-});
+// const webhookClient = new WebhookClient({
+//   url: process.env.DISCORD_WEBHOOK_URL ?? '',
+// });
 
 export enum logLevel {
   Error = 'ERROR',
@@ -34,13 +34,13 @@ export async function log(message: string, level: logLevel = logLevel.Info) {
 
   console.log(colorizedMessage);
 
-  if (level === logLevel.Error || level === logLevel.Warn) {
-    try {
-      await webhookClient.send(`[${level}] ${message}`);
-    } catch (error: any) {
-      console.error(`Failed to send message to Discord webhook: ${error.message}`);
-    }
-  }
+  // if (level === logLevel.Error || level === logLevel.Warn) {
+  //   try {
+  //     await webhookClient.send(`[${level}] ${message}`);
+  //   } catch (error: any) {
+  //     console.error(`Failed to send message to Discord webhook: ${error.message}`);
+  //   }
+  // }
 
   const currentDate = new Date();
   const formattedDate = currentDate

@@ -1,4 +1,3 @@
-const { devs, testServer } = require('../../../config.json');
 const getLocalCommands = require('../../utils/getLocalCommands');
 import { logLevel, log } from '../../utils/log';
 
@@ -8,14 +7,12 @@ module.exports = async (client: any, interaction: any) => {
   const localCommands = getLocalCommands();
 
   try {
-    const commandObject = localCommands.find(
-      (cmd: any) => cmd.name === interaction.commandName
-    );
+    const commandObject = localCommands.find((cmd: any) => cmd.name === interaction.commandName);
 
     if (!commandObject) return;
 
     if (commandObject.devOnly) {
-      if (!devs.includes(interaction.member.id)) {
+      if (!process.env.DEVS?.includes(interaction.member.id)) {
         interaction.reply({
           content: 'Only developers are allowed to run this command.',
           ephemeral: true,
@@ -25,7 +22,7 @@ module.exports = async (client: any, interaction: any) => {
     }
 
     if (commandObject.testOnly) {
-      if (!(interaction.guild.id === testServer)) {
+      if (!(interaction.guild.id === process.env.TEST_GUILD)) {
         interaction.reply({
           content: 'This command cannot be ran here.',
           ephemeral: true,
@@ -61,7 +58,7 @@ module.exports = async (client: any, interaction: any) => {
     }
 
     await commandObject.callback(client, interaction);
-  } catch (error) {
-    log(`There was an error running this command: ${error}`, logLevel.Error);
+  } catch (error: any) {
+    log(`There was an error running this command: ${error}\n ${error.stack}`, logLevel.Error);
   }
 };

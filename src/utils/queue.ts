@@ -1,10 +1,12 @@
 import { log, logLevel } from './log';
 import { Track } from './track';
+import { Player } from './player';
 
 export class Queue {
   static queues: Map<string, Queue> = new Map();
   queue: Track[];
   guildId: string;
+  isPlaying: boolean = false;
 
   constructor(guildId: string) {
     this.guildId = guildId;
@@ -43,31 +45,33 @@ export class Queue {
 
     if (platform === 'spotify') {
       if (type === 'track') {
-        const track = new Track(link, requester);
+        const track = await Track.create(link, requester);
         tracks.push(track);
       } else if (type === 'playlist') {
         const playlistId = link.split('playlist/')[1].split('?')[0];
         const spotifyTracks = await Track.getTracksFromPlaylist(playlistId);
 
-        tracks = spotifyTracks
+        const trackPromises = spotifyTracks
           .map((trackData: any) => {
             if (trackData) {
-              const track = new Track(trackData.external_urls.spotify, requester);
-              return track;
+              return Track.create(trackData.external_urls.spotify, requester);
             }
           })
-          .filter((track: any): track is Track => track !== undefined);
+          .filter((track: any): track is Promise<Track> => track !== undefined);
+
+        tracks = await Promise.all(trackPromises);
       } else if (type === 'album') {
         const albumId = link.split('album/')[1].split('?')[0];
         const spotifyTracks = await Track.getTracksFromAlbum(albumId);
 
-        tracks = spotifyTracks.map((trackData: any) => {
-          const track = new Track(trackData.external_urls.spotify, requester);
-          return track;
+        const trackPromises = spotifyTracks.map((trackData: any) => {
+          return Track.create(trackData.external_urls.spotify, requester);
         });
+
+        tracks = await Promise.all(trackPromises);
       }
     } else if (platform === 'youtube') {
-      const track = new Track(link, requester);
+      const track = await Track.create(link, requester);
       tracks.push(track);
     }
 
@@ -86,15 +90,20 @@ export class Queue {
     const nextTracks = this.queue.slice(0, 3);
 
     // Download the tracks if they haven't been downloaded yet
+    log(
+      `Downloading next tracks: ${nextTracks.map((track) => track.name).join(', ')}`,
+      logLevel.Debug
+    );
     for (const track of nextTracks) {
-      if (!track.downloaded) {
+      if (track.downloadStatus === 'not_started') {
         await track.download();
-        track.downloaded = true;
       }
     }
   }
 
   skip(num: number = 1) {
+    let player = Player.getPlayer(this.guildId);
+
     if (this.queue.length === 0) {
       return 'The queue is empty.';
     }
@@ -106,6 +115,9 @@ export class Queue {
     for (let i = 0; i < num; i++) {
       this.queue.shift();
     }
+
+    player.stop();
+    player.play();
 
     this.downloadNextTracks();
     return `Successfully skipped ${num} track(s)!`;
@@ -126,7 +138,10 @@ export class Queue {
 
     let formattedQueue = this.queue
       .slice(0, 15)
-      .map((track, index) => ` - [${track.name} - ${track.artists}](${track.link}) (${track.requester})`)
+      .map(
+        (track, index) =>
+          ` - [${track.name} - ${track.artists}](${track.link}) (${track.requester})`
+      )
       .join('\n');
 
     if (this.queue.length > 15) {

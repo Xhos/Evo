@@ -2,8 +2,8 @@ import path from 'path';
 import getAllFiles from '../utils/getAllFiles';
 import { logLevel, log } from '../utils/log';
 
-const audioPlayerEventHandler = (player) => {
-  const eventFolders = getAllFiles(path.join(__dirname, '..', 'events'), true);
+const audioPlayerEventHandler = (player: any) => {
+  const eventFolders = getAllFiles(path.join(__dirname, '..', 'audioEvents'), true);
 
   for (const eventFolder of eventFolders) {
     const eventFiles = getAllFiles(eventFolder);
@@ -11,7 +11,7 @@ const audioPlayerEventHandler = (player) => {
 
     const eventName = eventFolder.replace(/\\/g, '/').split('/').pop();
 
-    player.on(eventName, async (oldState, newState) => {
+    player.on(eventName, async (oldState: any, newState: any) => {
       for (const eventFile of eventFiles) {
         const eventFunction = require(eventFile);
         if (typeof eventFunction === 'function') {
@@ -22,8 +22,8 @@ const audioPlayerEventHandler = (player) => {
       }
     });
   }
-  player.on('error', (error) => {
-    log(`Error occurred in player: ${error.message}`, logLevel.Error);
+  player.on('error', (error: any) => {
+    log(`Error occurred in player: ${error.message}, stack: ${error.stack}`, logLevel.Error);
   });
 };
 

@@ -1,4 +1,5 @@
-const queues = require('../../utils/queue');
+import { Queue } from '../../utils/queue';
+import { log, logLevel } from '../../utils/log';
 
 module.exports = {
   name: 'skip',
@@ -15,22 +16,19 @@ module.exports = {
 
   callback: async (client: any, interaction: any) => {
     const guildId = interaction.guild.id;
-    let queue = queues[guildId];
-
-    // if (!queue) {
-    //   queue = new Queue();
-    //   queues[guildId] = queue;
-    // }
-
-    let num = 1;
-
-    if (interaction.options.get('num_tracks') != null) {
-      let num = interaction.options.get('num_tracks').value;
-    }
+    const num = interaction.options.get('num_tracks')?.value || 1;
 
     await interaction.reply('Attempting to skip to the next track...');
 
-    await interaction.editReply(await queue.skip(num));
+    const queue = Queue.getQueue(guildId);
+    if (!queue) {
+      log(`No queue found for guild ID: ${guildId}`, logLevel.Error);
+      return;
+    }
+
+    const result = queue.skip(num);
+
+    await interaction.editReply(result);
   },
 };
 

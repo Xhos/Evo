@@ -45,6 +45,30 @@ export class Player {
     return player;
   }
 
+  async stop() {
+    const queue = Queue.getQueue(this.guildId);
+    log('Stopping the player..', logLevel.Debug);
+    this.player.stop();
+    queue.isPlaying = false;
+    log(`Audio stopped: ${this.player.state.status}`, logLevel.Debug);
+  }
+
+  async pause() {
+    const queue = Queue.getQueue(this.guildId);
+    log('Pausing the player..', logLevel.Debug);
+    this.player.pause();
+    queue.isPlaying = false;
+    log(`Audio paused: ${this.player.state.status}`, logLevel.Debug);
+  }
+
+  async resume() {
+    const queue = Queue.getQueue(this.guildId);
+    log('Resuming the player..', logLevel.Debug);
+    this.player.unpause();
+    queue.isPlaying = true;
+    log(`Audio resumed: ${this.player.state.status}`, logLevel.Debug);
+  }
+
   async play() {
     log('Trying to get the current track from the queue..', logLevel.Debug);
     const currentTrack = this.queue.getCurrentTrack();
@@ -52,21 +76,25 @@ export class Player {
       return;
     }
 
-    if (currentTrack.downloaded == false) {
+    if (currentTrack.downloadStatus === 'not_started') {
       log('Track is not yet downloded, downloading it now..', logLevel.Debug);
       await currentTrack.download();
     }
 
+    log(JSON.stringify(currentTrack), logLevel.Debug);
     const resource = createAudioResource(currentTrack.path);
     this.player.play(resource);
 
+    const queue = Queue.getQueue(this.guildId);
+    queue.isPlaying = true;
+
     log(`Playing: ${currentTrack.name} - ${currentTrack.artists}`, logLevel.Debug);
-    // log(`Audio player status: ${this.player.state.status}`, logLevel.Debug);
+    log(`Audio player status: ${this.player.state.status}`, logLevel.Debug);
 
     // Listen for error events on the AudioPlayer
-    // this.player.on('error', (error) => {
-    //   log(`AudioPlayer error: ${error.message}`, logLevel.Error);
-    // });
+    this.player.on('error', (error) => {
+      log(`AudioPlayer error: ${error.message}`, logLevel.Error);
+    });
   }
 
   join(channelID: string) {

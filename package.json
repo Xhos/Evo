@@ -4,6 +4,7 @@
     "chalk": "^5.3.0",
     "discord.js": "^14.12.1",
     "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.0.3",
     "oracledb": "^6.3.0",
     "sodium-native": "^4.0.4",

@@ -7,7 +7,7 @@ const getLocalCommands = require('../../utils/getLocalCommands');
 module.exports = async (client: any) => {
   try {
     const localCommands = getLocalCommands();
-    const applicationCommands = await getApplicationCommands(client, process.env.TEST_GUILD_ID || '');
+    const applicationCommands = await getApplicationCommands(client, process.env.TEST_GUILD || '');
 
     for (const localCommand of localCommands) {
       const { name, description, options } = localCommand;
@@ -44,8 +44,8 @@ module.exports = async (client: any) => {
         log(`👍 Registered command "${name}."`);
       }
     }
-  } catch (error) {
-    log(`There was an error: ${error}`, logLevel.Error);
+  } catch (error: any) {
+    log(`There was an error: ${error}\n${error.stack}`, logLevel.Error);
   }
 };
 

@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { queues } = require('../../utils/queue');
+const { Queue } = require('../../utils/queue');
 
 module.exports = {
   name: 'queue',
@@ -7,14 +7,12 @@ module.exports = {
   testOnly: true,
 
   callback: async (client: any, interaction: any) => {
-    const guildId = interaction.guild.id;
-    let queue = queues[guildId];
-
-    // if (!queue) {
-    //   return interaction.reply('The queue is currently empty!');
-    // }
-
+    const queue = Queue.getQueue(interaction.guildId);
     const formattedQueue = queue.getFormattedQueue();
+
+    if (!queue) {
+      return interaction.reply('The queue is currently empty!');
+    }
 
     const embed = new EmbedBuilder()
       .setTitle('Queue')
