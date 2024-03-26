@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package evoBot;
+
+// The EvoBot service definition
+service EvoBot {
+  // Join a voice channel
+  rpc Join (JoinRequest) returns (JoinReply) {}
+}
+
+// The request message containing the guild's ID and the channel ID
+message JoinRequest {
+  string guild_id = 1;
+  string channel_id = 2;
+}
+
+// The response message containing the result
+message JoinReply {
+  string result = 1;
+}
