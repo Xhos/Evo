@@ -25,6 +25,7 @@ message JoinReply {
 message AddRequest {
   string guild_id = 1;
   string link = 2;
+  string username = 3;
 }
 
 // The response message containing the result

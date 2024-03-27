@@ -4,6 +4,7 @@ import { ServerUnaryCall, sendUnaryData } from '@grpc/grpc-js';
 import { Player } from '../../utils/player';
 import { Queue } from '../../utils/queue';
 import { logLevel, log } from '../../utils/log';
+import { ReflectionService } from '@grpc/reflection';
 
 module.exports = async (client: any) => {
   const packageDefinition = protoLoader.loadSync('evoBot.proto', {
@@ -20,7 +21,7 @@ module.exports = async (client: any) => {
     const guildID = call.request.guild_id;
     const channelID = call.request.channel_id;
 
-    log(`GRPC api call to join guild ${guildID}, channel ${channelID}`, logLevel.Info);
+    log(`join: g: ${guildID}\nc: ${channelID}`);
 
     let player = await Player.getPlayer(guildID);
     await player.join(channelID);
@@ -30,8 +31,7 @@ module.exports = async (client: any) => {
 
   async function play(call: ServerUnaryCall<any, any>, callback: sendUnaryData<any>) {
     const guildID = call.request.guild_id;
-
-    log(`GRPC api call to play in track guild ${guildID}`);
+    log(`play: g: ${guildID}`);
 
     let player = await Player.getPlayer(guildID);
     await player.play();
@@ -42,17 +42,22 @@ module.exports = async (client: any) => {
   async function add(call: ServerUnaryCall<any, any>, callback: sendUnaryData<any>) {
     const guildID = call.request.guild_id;
     const link = call.request.link;
+    const username = call.request.username;
+    log(`add: l: ${link}\ng: ${guildID}\nu: ${username}`);
 
     const queue = Queue.getQueue(guildID);
     try {
-      await queue.add(link, 'username'); // Replace 'username' with the actual username
+      await queue.add(link, username);
       callback(null, { result: 'Track added to the queue!' });
     } catch (error: any) {
       log(error, logLevel.Error);
       callback(null, { result: 'There was an error adding the track to the queue.' });
     }
   }
+
   const server = new grpc.Server();
+  const reflection = new ReflectionService(packageDefinition);
+  reflection.addToServer(server);
   server.addService(evoBotProto.EvoBot.service, { join: join, add: add, play: play });
   server.bindAsync('0.0.0.0:50051', grpc.ServerCredentials.createInsecure(), () => {
     log('API server listening on 0.0.0.0:50051');
