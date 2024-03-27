@@ -6,6 +6,8 @@ package evoBot;
 service EvoBot {
   // Join a voice channel
   rpc Join (JoinRequest) returns (JoinReply) {}
+  rpc Add (AddRequest) returns (AddReply) {}
+  rpc Play (PlayRequest) returns (PlayReply) {}
 }
 
 // The request message containing the guild's ID and the channel ID
@@ -16,5 +18,26 @@ message JoinRequest {
 
 // The response message containing the result
 message JoinReply {
+  string result = 1;
+}
+
+// The request message containing the guild's ID and the track link
+message AddRequest {
+  string guild_id = 1;
+  string link = 2;
+}
+
+// The response message containing the result
+message AddReply {
+  string result = 1;
+}
+
+// The request message containing the guild's ID
+message PlayRequest {
+  string guild_id = 1;
+}
+
+// The response message containing the result
+message PlayReply {
   string result = 1;
 }
