@@ -13,3 +13,5 @@ node_modules/
 
 # Temp filse
 temp/
+
+config.json
