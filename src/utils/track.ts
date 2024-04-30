@@ -76,7 +76,12 @@ export class Track {
     }
 
     log(`Downloading track: ${this.name} - ${this.artists}`, logLevel.Debug);
-    const filePath = path.join(__dirname, '..', 'temp', `${this.name.replace(/[\\/:*?"<>|]/g, '')} - ${this.artists}.mp3`);
+    const filePath = path.join(
+      __dirname,
+      '..',
+      'temp',
+      `${this.name.replace(/[\\/:*?"<>|]/g, '')} - ${this.artists}.mp3`
+    );
 
     this.path = filePath;
 
