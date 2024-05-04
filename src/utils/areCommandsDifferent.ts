@@ -19,7 +19,9 @@ interface Command {
 const areCommandsDifferent = (existingCommand: Command, localCommand: Command): boolean => {
   const areChoicesDifferent = (existingChoices: Choice[], localChoices: Choice[]): boolean => {
     for (const localChoice of localChoices) {
-      const existingChoice = existingChoices?.find((choice: Choice) => choice.name === localChoice.name);
+      const existingChoice = existingChoices?.find(
+        (choice: Choice) => choice.name === localChoice.name
+      );
 
       if (!existingChoice || localChoice.value !== existingChoice.value) {
         return true;
@@ -30,7 +32,9 @@ const areCommandsDifferent = (existingCommand: Command, localCommand: Command): 
 
   const areOptionsDifferent = (existingOptions: Option[], localOptions: Option[]): boolean => {
     for (const localOption of localOptions) {
-      const existingOption = existingOptions?.find((option: Option) => option.name === localOption.name);
+      const existingOption = existingOptions?.find(
+        (option: Option) => option.name === localOption.name
+      );
 
       if (!existingOption) {
         return true;

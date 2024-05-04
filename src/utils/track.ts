@@ -5,8 +5,11 @@ import spotifyApi from './spotify';
 import { logLevel, log } from '../utils/log';
 import searchYT from './youtube';
 import fs from 'fs';
+import db from './db';
 
 export class Track {
+  public createdAt: Date;
+
   constructor(
     public link: string,
     public requester: string,
@@ -16,7 +19,9 @@ export class Track {
     public path: string = '',
     public downloadLink: string = '',
     public downloadStatus: 'not_started' | 'downloading' | 'downloaded' = 'not_started'
-  ) {}
+  ) {
+    this.createdAt = new Date();
+  }
 
   static async create(link: string, requester: string) {
     const track = new Track(link, requester);
@@ -121,12 +126,33 @@ export class Track {
       });
 
       this.downloadStatus = 'downloaded';
+      this.saveToFirestore();
     } catch (error: any) {
       log(`Error downloading track: ${error.message}`, logLevel.Error);
     } finally {
       if (this.downloadStatus === 'downloading') {
         this.downloadStatus = 'not_started';
       }
+    }
+  }
+
+  async saveToFirestore() {
+    try {
+      const docRef = db.collection('tracks').doc('tracks');
+      await docRef.set({
+        link: this.link,
+        requester: this.requester,
+        name: this.name,
+        artists: this.artists,
+        platform: this.platform,
+        path: this.path,
+        downloadLink: this.downloadLink,
+        downloadStatus: this.downloadStatus,
+        createdAt: this.createdAt,
+      });
+      log('Track saved to Firestore');
+    } catch (error) {
+      log('Error saving track to Firestore', logLevel.Error);
     }
   }
 }

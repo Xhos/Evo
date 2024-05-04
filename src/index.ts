@@ -7,5 +7,4 @@ dotenv.config();
 
 eventHandler(client);
 audioPlayerEventHandlers(client);
-
 client.login(process.env.DISCORD_TOKEN);
