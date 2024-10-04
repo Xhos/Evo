@@ -1,11 +1,11 @@
 # evo
 
-A _blazingly fast_ discord bot (not really) written in Rust.
+a _blazingly fast_ discord bot (not really) written in Rust.
 
-Current features:
+current features:
 none 👍
 
-Planned for this rewrite:
+planned for this rewrite:
 
 - [ ] private channels
 - [ ] music
@@ -14,3 +14,7 @@ Planned for this rewrite:
 - [ ] stats
 - [ ] level system
 - [ ] some dm features if that's possible
+
+# developing
+
+use [devenv](https://devenv.sh/), install it, it should work automatically.
